@@ -1,25 +1,26 @@
-var chart; 
+let chart;
 
-data = d3.csv("./data/netflix_user_behavior_dataset.csv").then(function (data) {
+d3.csv("data/music_mental_health.csv").then(data => {
+    // IMPORTANT: Make sure these match your CSV headers exactly!
     data.forEach(d => {
-        d.age = +d.age;
-        d.avg_watch_time_minutes = +d.avg_watch_time_minutes;
-        d.watch_sessions_per_week = +d.watch_sessions_per_week;
-        d.binge_watch_sessions = +d.binge_watch_sessions;
-        d.recommendation_click_rate = +d.recommendation_click_rate;
-        d.completion_rate = +d.completion_rate;
+        d["Hours per day"] = +d["Hours per day"];
+        d["Anxiety"] = +d["Anxiety"];
+        d["Insomnia"] = +d["Insomnia"];
+        d["Depression"] = +d["Depression"];
+        d["OCD"] = +d["OCD"];
     });
 
-    console.log("Data loaded")
+    console.log("Data loaded:", data); 
 
     chart = new Chart("#chart-area", data);
-    chart.updateVis();
-}).catch(error => {
-    console.error("Error loading CSV:", error);
-});
+}).catch(error => console.error("Error loading CSV:", error));
 
-document.getElementById('select-order-type').onchange = function () {
-    if (chart) { 
-        chart.updateVis(this.value);
-    }
+// Event listeners for both dropdowns
+function updateChart() {
+    const genre = document.getElementById("select-genre").value;
+    const metric = document.getElementById("select-metric").value;
+    chart.wrangleData(genre, metric);
 }
+
+document.getElementById("select-genre").onchange = updateChart;
+document.getElementById("select-metric").onchange = updateChart;
