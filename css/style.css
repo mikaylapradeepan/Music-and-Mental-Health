@@ -24,3 +24,9 @@ h1 {
 .grid path {
     stroke-width: 0;
 }
+
+.chart-area {
+    background-color: #f8f9fa;
+    border-radius: 8px; 
+    border: 1px solid #dee2e6;
+}
