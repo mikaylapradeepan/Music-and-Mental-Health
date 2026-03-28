@@ -15,18 +15,15 @@ Chart.prototype.initVis = function () {
     vis.width = 900 - vis.margin.left - vis.margin.right;
     vis.height = 500 - vis.margin.top - vis.margin.bottom;
 
-    // 1. Create the SVG base first
     vis.svg = d3.select(vis.parentElement).append("svg")
         .attr("width", vis.width + vis.margin.left + vis.margin.right)
         .attr("height", vis.height + vis.margin.top + vis.margin.bottom)
         .append("g")
         .attr("transform", "translate(" + vis.margin.left + "," + vis.margin.top + ")");
 
-    // 2. Now append grids (they will be at the bottom of the "sandwich")
     vis.xGrid = vis.svg.append("g").attr("class", "grid x-grid");
     vis.yGrid = vis.svg.append("g").attr("class", "grid y-grid");
 
-    // 3. Tooltip remains on body
     vis.tooltip = d3.select("body").append("div")
         .attr("class", "tooltip")
         .style("opacity", 0)
@@ -37,7 +34,6 @@ Chart.prototype.initVis = function () {
         .style("border-radius", "5px")
         .style("pointer-events", "none");
 
-    // Scales & Axes
     vis.x = d3.scaleBand().range([0, vis.width]).padding(0.3);
     vis.y = d3.scaleLinear().range([vis.height, 0]);
     vis.xAxis = d3.axisBottom(vis.x);
@@ -46,7 +42,6 @@ Chart.prototype.initVis = function () {
     vis.svg.append("g").attr("class", "x-axis axis").attr("transform", `translate(0,${vis.height})`);
     vis.svg.append("g").attr("class", "y-axis axis");
 
-    // Labels
     vis.yLabel = vis.svg.append("text")
         .attr("transform", "rotate(-90)")
         .attr("y", -50)
@@ -71,13 +66,11 @@ Chart.prototype.wrangleData = function (newMetric, newInstrumentalist) {
     if (newMetric) vis.selectedMetric = newMetric;
     if (newInstrumentalist) vis.selectedInstrumentalist = newInstrumentalist;
 
-    // 1. Filter data based on Instrumentalist status
     let filteredData = vis.data;
     if (vis.selectedInstrumentalist !== "All") {
         filteredData = vis.data.filter(d => d.Instrumentalist === vis.selectedInstrumentalist);
     }
 
-    // 2. Group by Genre and calculate averages
     let groupedData = d3.groups(filteredData, d => d["Fav genre"]);
 
     vis.displayData = groupedData.map(([genre, values]) => {
@@ -86,7 +79,9 @@ Chart.prototype.wrangleData = function (newMetric, newInstrumentalist) {
             avgScore: d3.mean(values, d => d[vis.selectedMetric]),
             count: values.length
         };
-    }).filter(d => d.genre); // Remove undefined genres
+    }).filter(d => d.genre);
+
+    vis.displayData = vis.displayData.sort((a, b) => b.avgScore - a.avgScore);
 
     this.updateVis();
 };
@@ -102,8 +97,8 @@ Chart.prototype.updateVis = function () {
 
     vis.yGrid.transition().duration(800)
         .call(d3.axisLeft(vis.y)
-            .tickSize(-vis.width) // Make the ticks span the whole width
-            .tickFormat("")       // Remove the labels (the real axis handles those)
+            .tickSize(-vis.width) 
+            .tickFormat("")       
         );
 
     let bars = vis.svg.selectAll(".bar")
